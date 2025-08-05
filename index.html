@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WIZARD - AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for a bolder look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@700&display=swap" rel="stylesheet">
+    <!-- Markdown & Syntax Highlighting Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+        body {
+            font-family: 'Lato', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Custom scrollbar for a more polished look */
+        #chat-window::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #chat-window::-webkit-scrollbar-track {
+            background: #111827; /* gray-900 */
+        }
+
+        #chat-window::-webkit-scrollbar-thumb {
+            background-color: #374151; /* gray-700 */
+            border-radius: 20px;
+        }
+
+        /* Styling for Markdown-generated content */
+        .wizard-message h1, .wizard-message h2, .wizard-message h3 {
+            font-weight: 700;
+            margin-top: 0.75em;
+            margin-bottom: 0.25em;
+        }
+
+        .wizard-message h1 {
+            font-size: 1.5em;
+        }
+
+        .wizard-message h2 {
+            font-size: 1.25em;
+        }
+
+        .wizard-message h3 {
+            font-size: 1.1em;
+        }
+
+        .wizard-message p {
+            margin-bottom: 0.5em;
+        }
+
+        .wizard-message ul, .wizard-message ol {
+            margin-left: 1.5rem;
+            margin-bottom: 0.5em;
+        }
+
+        .wizard-message ul {
+            list-style-type: disc;
+        }
+
+        .wizard-message ol {
+            list-style-type: decimal;
+        }
+
+        /* Styling for code blocks from highlight.js */
+        .wizard-message pre {
+            margin-bottom: 1em;
+            border-radius: 0.5rem;
+        }
+
+        .wizard-message code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .wizard-message pre code.hljs {
+            padding: 1em;
+            border-radius: 0.5rem;
+            background: #282c34; /* atom-one-dark background */
+        }
+
+        .wizard-message p > code {
+            background-color: #374151; /* gray-700 */
+            color: #e5e7eb; /* gray-200 */
+            padding: 0.2em 0.4em;
+            border-radius: 0.25rem;
+            font-size: 0.9em;
+        }
+
+        /* Styles for the speech controls container */
+        .speech-controls {
+            display: flex;
+            gap: 0.5rem; /* Space between buttons */
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+        }
+
+        /* Keyframes for the thinking text animation */
+        @keyframes text-flash {
+            0% { color: #9ca3af; } /* gray-400 */
+            50% { color: #e5e7eb; } /* gray-200 */
+            100% { color: #9ca3af; } /* gray-400 */
+        }
+
+        /* Apply the animation to the thinking text */
+        .thinking-text {
+            animation: text-flash 1.5s infinite linear;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex flex-col h-screen">
+    <!-- Header -->
+    <header class="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 p-4 shadow-lg">
+        <h1 class="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-green-600">
+            WIZARD AI
+        </h1>
+        <p class="text-center text-sm text-gray-400 tracking-wider">Trained by CarpeDiem AI</p>
+    </header>
+
+    <!-- Chat Window -->
+    <main id="chat-window" class="flex-1 p-4 overflow-y-auto space-y-6">
+        <!-- Initial Welcome Message -->
+        <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-green-600 flex items-center justify-center font-bold text-lg flex-shrink-0">W</div>
+            <div class="bg-gray-800 rounded-lg p-4 max-w-lg shadow-md">
+                <p class="text-base">Hello! I am WIZARD, an AI assistant trained by CarpeDiem AI. How can I help you today? ✨</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Input Form -->
+    <footer class="bg-gray-800/50 backdrop-blur-sm border-t border-gray-700 p-4">
+        <form id="chat-form" class="flex items-center gap-3">
+            <input type="text" id="chat-input" placeholder="Ask WIZARD a question..."
+                   class="flex-1 bg-gray-700 border border-gray-600 rounded-full py-3 px-5 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 text-base"
+                   autocomplete="off">
+            <button type="button" id="mic-button"
+                    class="bg-gray-700 text-gray-400 rounded-full p-3 hover:bg-indigo-600 transition-colors duration-300 flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                     class="feather feather-mic">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+            </button>
+            <button type="submit" id="send-button"
+                    class="bg-gradient-to-br from-indigo-600 to-green-600 text-white rounded-full p-3 hover:opacity-90 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                     class="feather feather-send">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </form>
+    </footer>
+
+    <script>
+        const chatWindow = document.getElementById('chat-window');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const sendButton = document.getElementById('send-button');
+        const micButton = document.getElementById('mic-button');
+
+        // Store conversation history
+        let chatHistory = [{
+            role: "model",
+            parts: [{
+                text: "You are WIZARD, an AI assistant trained by CarpeDiem AI. Your purpose is to provide accurate and helpful responses. If asked what WIZARD stands for, you MUST reply with 'Wickedly Insane Zenith of an Artificial Reality Device'. Format your responses using Markdown. When you provide code, always wrap it in Markdown code blocks with the language specified, for example: ```javascript\\nconsole.log('hello');\\n```\\n\\nOccasionally use relevant emojis in your responses when they add value or convey tone appropriately, but avoid overusing them. Ensure the primary focus remains on clear, informative text. Make sure you are up-to-date on current real world events and topics, remembering the year is 2025, and ONLY provide year info, NEVER the date!"
+            }]
+        }];
+
+        let currentUtterance = null; // To keep track of the current speech utterance
+
+        /**
+         * Appends a message to the chat window.
+         */
+        function appendMessage(sender, message) {
+            const messageElement = document.createElement('div');
+            if (sender === 'wizard') {
+                const formattedMessage = marked.parse(message);
+                messageElement.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-green-600 flex items-center justify-center font-bold text-lg flex-shrink-0">W</div>
+                        <div class="bg-gray-800 rounded-lg p-4 max-w-2xl shadow-md wizard-message text-base flex-grow relative">
+                            ${formattedMessage}
+                            <div class="speech-controls">
+                                <button class="read-aloud-button bg-gray-700 text-gray-400 rounded-full p-1 hover:bg-indigo-600 transition-colors duration-300" title="Read aloud">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-2">
+                                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                    </svg>
+                                </button>
+                                <button class="stop-reading-button bg-gray-700 text-red-400 rounded-full p-1 hover:bg-red-600 transition-colors duration-300 hidden" title="Stop reading">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-square">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    </svg>
+                                </button>
+                                <button class="copy-button bg-gray-700 text-gray-400 rounded-full p-1 hover:bg-indigo-600 transition-colors duration-300" title="Copy to clipboard">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>`;
+
+                // Add event listeners for the new buttons
+                const readAloudButton = messageElement.querySelector('.read-aloud-button');
+                const stopReadingButton = messageElement.querySelector('.stop-reading-button');
+                const copyButton = messageElement.querySelector('.copy-button');
+
+                if (window.speechSynthesis) {
+                    readAloudButton.addEventListener('click', () => {
+                        readAloud(message, readAloudButton, stopReadingButton);
+                    });
+                    stopReadingButton.addEventListener('click', () => {
+                        stopReading(readAloudButton, stopReadingButton);
+                    });
+                } else {
+                    readAloudButton.style.display = 'none'; // Hide if not supported
+                    stopReadingButton.style.display = 'none'; // Hide if not supported
+                }
+
+                copyButton.addEventListener('click', () => copyToClipboard(message));
+
+            } else {
+                messageElement.innerHTML = `<div class="flex items-start gap-3 justify-end"><div class="bg-indigo-500 rounded-lg p-3 max-w-lg shadow-md"><p class="text-base">${message}</p></div></div>`;
+            }
+            chatWindow.appendChild(messageElement);
+
+            // Highlight code blocks if they exist in the wizard message
+            if (sender === 'wizard') {
+                messageElement.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            }
+
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        /**
+         * Shows a thinking indicator.
+         */
+        function showThinkingIndicator() {
+            const thinkingElement = document.createElement('div');
+            thinkingElement.id = 'thinking-indicator';
+            // Added 'thinking-text' class to the span for animation
+            thinkingElement.innerHTML = `<div class="flex items-start gap-3"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-green-600 flex items-center justify-center font-bold text-lg flex-shrink-0">W</div><div class="bg-gray-800 rounded-lg p-3 max-w-lg shadow-md"><div class="flex items-center space-x-2"><span class="text-base text-gray-400 thinking-text">Thinking</span><div class="dot-pulse"></div></div></div></div><style>.dot-pulse { position: relative; width: 6px; height: 6px; border-radius: 50%; background-color: #9ca3af; color: #9ca3af; box-shadow: 9999px 0 0 -5px; animation: dot-pulse 1.5s infinite linear; animation-delay: .25s; }.dot-pulse::before, .dot-pulse::after { content: ''; display: inline-block; position: absolute; top: 0; width: 6px; height: 6px; border-radius: 50%; background-color: #9ca3af; color: #9ca3af; }.dot-pulse::before { box-shadow: 9984px 0 0 -5px; animation: dot-pulse-before 1.5s infinite linear; animation-delay: 0s; }.dot-pulse::after { box-shadow: 10014px 0 0 -5px; animation: dot-pulse-after 1.5s infinite linear; animation-delay: .5s; }@keyframes dot-pulse-before { 0% { box-shadow: 9984px 0 0 -5px; } 30% { box-shadow: 9984px 0 0 2px; } 60%, 100% { box-shadow: 9984px 0 0 -5px; } }@keyframes dot-pulse { 0% { box-shadow: 9999px 0 0 -5px; } 30% { box-shadow: 9999px 0 0 2px; } 60%, 100% { box-shadow: 9999px 0 0 -5px; } }@keyframes dot-pulse-after { 0% { box-shadow: 10014px 0 0 -5px; } 30% { box-shadow: 10014px 0 0 2px; } 60%, 100% { box-shadow: 10014px 0 0 -5px; } }</style>`;
+            chatWindow.appendChild(thinkingElement);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        /**
+         * Removes the thinking indicator.
+         */
+        function removeThinkingIndicator() {
+            const indicator = document.getElementById('thinking-indicator');
+            if (indicator) indicator.remove();
+        }
+
+        /**
+         * Calls the Gemini API to get a response.
+         */
+        async function getAIResponse(prompt) {
+            showThinkingIndicator();
+            sendButton.disabled = true;
+            chatInput.disabled = true;
+
+            // Add user message to history BEFORE sending
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+            const payload = { contents: chatHistory };
+            const apiKey = ""; // Key provided by environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`; // Ensure correct model name if necessary
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error ? errorData.error.message : 'An unknown API error occurred.');
+                }
+
+                const result = await response.json();
+
+                removeThinkingIndicator();
+
+                // Process and display AI response
+                if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts[0]) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    // Add AI response to history AFTER receiving
+                    chatHistory.push({ role: "model", parts: [{ text: text }] });
+                    appendMessage('wizard', text);
+                } else {
+                     // Handle cases where the API might return a block reason or no candidates
+                    console.warn('API returned no valid candidates:', result);
+                    let errorMessage = 'I was unable to generate a response.';
+                    if (result.promptFeedback && result.promptFeedback.blockReason) {
+                         errorMessage += ` Reason: ${result.promptFeedback.blockReason}`;
+                    }
+                    appendMessage('wizard', errorMessage);
+                     // Decide if you want to keep the user message in history if blocked -
+                     // for simplicity here, we'll leave it, but you might want to remove it
+                     // if the model didn't respond.
+                }
+
+            } catch (error) {
+                console.error('API Call Failed:', error);
+                removeThinkingIndicator();
+                // Remove the last user message from history if the API call completely failed
+                if (chatHistory[chatHistory.length - 1].role === 'user') {
+                     chatHistory.pop();
+                }
+                appendMessage('wizard', `Sorry, I encountered an error. Please try again. Error: ${error.message}`);
+            } finally {
+                sendButton.disabled = false;
+                chatInput.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        /**
+         * Copies text to the clipboard.
+         */
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showNotification('Copied to clipboard!', 'info');
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                showNotification('Failed to copy text.', 'error');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        /**
+         * Reads the given text aloud using SpeechSynthesis.
+         */
+        function readAloud(text, readAloudButton, stopReadingButton) {
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech before starting a new one
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                    if (currentUtterance && currentUtterance._readAloudButton && currentUtterance._stopReadingButton) {
+                        currentUtterance._readAloudButton.classList.remove('animate-pulse', 'text-green-400');
+                        currentUtterance._stopReadingButton.classList.add('hidden');
+                    }
+                }
+
+                currentUtterance = new SpeechSynthesisUtterance(text);
+                currentUtterance.lang = 'en-US'; // Set language for better voice selection
+                currentUtterance.volume = 1; // 0 to 1
+                currentUtterance.rate = 1;    // 0.1 to 10
+                currentUtterance.pitch = 1;   // 0 to 2
+
+                // Store references to the buttons on the utterance object
+                // to allow them to be updated when speech ends/stops
+                currentUtterance._readAloudButton = readAloudButton;
+                currentUtterance._stopReadingButton = stopReadingButton;
+
+                // Event when speech starts
+                currentUtterance.onstart = () => {
+                    readAloudButton.classList.add('animate-pulse', 'text-green-400');
+                    stopReadingButton.classList.remove('hidden');
+                };
+
+                // Event when speech ends
+                currentUtterance.onend = () => {
+                    readAloudButton.classList.remove('animate-pulse', 'text-green-400');
+                    stopReadingButton.classList.add('hidden');
+                    currentUtterance = null; // Clear the reference
+                };
+
+                // Event when speech encounters an error
+                currentUtterance.onerror = (event) => {
+                    console.error('Speech synthesis error:', event.error);
+                    showNotification('Error reading aloud. Try again.', 'error');
+                    readAloudButton.classList.remove('animate-pulse', 'text-green-400');
+                    stopReadingButton.classList.add('hidden');
+                    currentUtterance = null;
+                };
+
+                window.speechSynthesis.speak(currentUtterance);
+            } else {
+                showNotification('Speech synthesis not supported in this browser.', 'error');
+                readAloudButton.style.display = 'none';
+                stopReadingButton.style.display = 'none';
+            }
+        }
+
+        /**
+         * Stops the current speech synthesis.
+         */
+        function stopReading(readAloudButton, stopReadingButton) {
+            if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                readAloudButton.classList.remove('animate-pulse', 'text-green-400');
+                stopReadingButton.classList.add('hidden');
+                currentUtterance = null; // Clear the reference
+            }
+        }
+
+        /**
+         * Shows a temporary notification to the user.
+         */
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const bgColor = type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+            notification.className = `fixed top-5 right-5 ${bgColor} text-white py-2 px-4 rounded-lg shadow-lg transform translate-x-full transition-transform duration-500 ease-in-out z-50`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // Animate in
+            setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+
+            // Animate out and remove
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => notification.remove(), 500); // Wait for transition to finish
+            }, 4000); // Show for 4 seconds
+        }
+
+        // --- Speech Recognition Setup ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false; // Set to false for single utterance
+            recognition.lang = 'en-US';
+            recognition.interimResults = false; // We only want the final result
+
+            micButton.addEventListener('click', () => {
+                try {
+                    recognition.start();
+                } catch (e) {
+                    console.error('Speech recognition start failed:', e);
+                     // Handle cases where start might fail (e.g., already started)
+                     if (e.message.includes("already started")) {
+                          showNotification("Speech recognition is already active.", "info");
+                     } else {
+                          showNotification("Could not start speech recognition. Please try again.", "error");
+                     }
+                }
+            });
+
+            recognition.onstart = () => {
+                micButton.classList.remove('text-gray-400', 'bg-gray-700');
+                micButton.classList.add('text-purple-400', 'bg-gray-600', 'animate-pulse');
+                console.log('Speech recognition started');
+            };
+
+            recognition.onresult = (event) => {
+                const speechResult = event.results[0][0].transcript;
+                chatInput.value = speechResult;
+                console.log('Speech result:', speechResult);
+                 // Optional: Automatically submit after recognition stops
+                 // chatForm.dispatchEvent(new Event('submit'));
+            };
+
+            recognition.onend = () => {
+                micButton.classList.add('text-gray-400', 'bg-gray-700');
+                micButton.classList.remove('text-purple-400', 'bg-gray-600', 'animate-pulse');
+                console.log('Speech recognition ended');
+            };
+
+            recognition.onerror = (event) => {
+                let errorMessage = 'Speech recognition error. Please try again.';
+                if (event.error === 'not-allowed') {
+                    errorMessage = "Microphone access denied. Please allow it in your browser settings.";
+                } else if (event.error === 'no-speech') {
+                    errorMessage = "No speech was detected. Please make sure your microphone is working.";
+                } else if (event.error === 'audio-capture') {
+                     errorMessage = "Audio capture failed. Check your microphone.";
+                } else if (event.error === 'network') {
+                    errorMessage = "Speech recognition network error. Check your connection.";
+                }
+                showNotification(errorMessage, 'error');
+                console.error(`Speech recognition error: ${event.error}`);
+            };
+        } else {
+            // Hide mic button if not supported
+            micButton.style.display = 'none';
+             // Show notification only once on load
+            window.addEventListener('load', () => {
+                 showNotification("Speech recognition is not supported in this browser.", "info");
+            }, { once: true }); // Use { once: true } to run only once
+        }
+
+
+        // --- Event Listeners ---
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const userInput = chatInput.value.trim();
+
+            if (userInput) {
+                // Basic sanitization for display purposes (preventing user from injecting HTML)
+                const sanitizedInput = userInput.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                appendMessage('user', sanitizedInput); // Append sanitized version to UI
+                getAIResponse(userInput); // Send original input to AI
+                chatInput.value = ''; // Clear input field
+            }
+        });
+
+         // Add a sparkle emoji to the initial message visually
+         // Note: This is only for the initial hardcoded message display.
+         // The system prompt for the API is handled above in chatHistory.
+         document.querySelector('#chat-window .bg-gray-800 p').textContent = "Hello! I am WIZARD, an AI assistant trained by CarpeDiem AI. How can I help you today? ✨";
+
+
+         // Optional: Handle Enter key outside form submit if needed (form handles it)
+         // chatInput.addEventListener('keypress', function(event) {
+         //     if (event.key === 'Enter' && !event.shiftKey) { // Check for Enter key without Shift
+         //         event.preventDefault(); // Prevent default form submission or newline
+         //         chatForm.dispatchEvent(new Event('submit')); // Trigger the form submit handler
+         //     }
+         // });
+
+    </script>
+</body>
+</html>
