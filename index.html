@@ -3,539 +3,784 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WIZARD - AI Assistant</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome for a bolder look -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@700&display=swap" rel="stylesheet">
-    <!-- Markdown & Syntax Highlighting Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <title>CarpeDiem Studios</title>
+    <link rel="icon" href="cdsweb/cdsLogo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
+        /* Base Styles & Reset */
+        :root {
+            --primary-bg: #1a1a2e; /* Dark background */
+            --secondary-bg: #2a2a4e; /* Slightly lighter dark */
+            --accent-color: #e07b39; /* Vibrant orange/gold */
+            --text-color: #f0f0f0;
+            --light-text-color: #bbbbbb;
+            --border-color: #4a4a6e;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --gradient-start: #3f3f6e;
+            --gradient-end: #1a1a2e;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: 'Lato', sans-serif;
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--primary-bg);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Utility Classes */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-padding {
+            padding: 100px 0;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .fade-in.appear {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Header & Navigation */
+        .header {
+            background-color: var(--primary-bg);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 10px var(--shadow-color);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--accent-color);
+            text-decoration: none;
+            letter-spacing: -1px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+        }
+
+        .nav-menu li {
+            margin-left: 40px;
+        }
+
+        .nav-menu a {
+            color: var(--light-text-color);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1em;
+            position: relative;
+            padding-bottom: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background-color: var(--accent-color);
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            color: var(--text-color);
+        }
+
+        .nav-menu a:hover::after, .nav-menu a.active::after {
+            width: 100%;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 10px;
+            z-index: 1001;
+        }
+
+        .hamburger .bar {
+            width: 25px;
+            height: 3px;
+            background-color: var(--text-color);
+            margin: 4px 0;
+            transition: 0.4s;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 1%, transparent 70%);
+            animation: background-pan 30s linear infinite;
+        }
+
+        @keyframes background-pan {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-50%, -50%); }
+        }
+
+        .hero-content {
+            z-index: 1;
+            max-width: 800px;
+        }
+
+        .hero-content h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 4.5em;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            background: linear-gradient(45deg, var(--accent-color), #ffd700, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             font-weight: 700;
         }
 
-        /* Custom scrollbar for a more polished look */
-        #chat-window::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        #chat-window::-webkit-scrollbar-track {
-            background: #111827; /* gray-900 */
-        }
-
-        #chat-window::-webkit-scrollbar-thumb {
-            background-color: #374151; /* gray-700 */
-            border-radius: 20px;
-        }
-
-        /* Styling for Markdown-generated content */
-        .wizard-message h1, .wizard-message h2, .wizard-message h3 {
-            font-weight: 700;
-            margin-top: 0.75em;
-            margin-bottom: 0.25em;
-        }
-
-        .wizard-message h1 {
+        .hero-content p {
             font-size: 1.5em;
+            margin-bottom: 40px;
+            color: var(--light-text-color);
         }
 
-        .wizard-message h2 {
-            font-size: 1.25em;
+        .btn {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: var(--primary-bg);
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.2em;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            border: none;
+            cursor: pointer;
         }
 
-        .wizard-message h3 {
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            background-color: #ff983d; /* Slightly lighter accent */
+        }
+
+        /* About Section */
+        .about-section {
+            background-color: var(--secondary-bg);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+        }
+
+        .about-text h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+
+        .about-text p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: var(--light-text-color);
+        }
+
+        .about-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .about-image {
+            flex-shrink: 0;
+        }
+        .about-image img {
+            max-width: 400px;
+            box-shadow: 0 15px 30px var(--shadow-color);
+            
+            transition: filter 0.3s ease;
+        }
+        .about-image img:hover {
+            filter: grayscale(0%);
+        }
+
+        /* Services Section */
+        .services-section {
+            background-color: var(--primary-bg);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .services-section h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5em;
+            margin-bottom: 60px;
+            color: var(--text-color);
+            text-align: center;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .service-card {
+            background-color: var(--secondary-bg);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px var(--shadow-color);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(224, 123, 57, 0.1), rgba(224, 123, 57, 0));
+            transform: translateX(-100%);
+            transition: transform 0.4s ease-out;
+            z-index: 0;
+        }
+
+        .service-card:hover::before {
+            transform: translateX(0%);
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .service-card .icon {
+            font-size: 3em;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .service-card h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: var(--text-color);
+            position: relative;
+            z-index: 1;
+        }
+
+        .service-card p {
+            font-size: 1em;
+            color: var(--light-text-color);
+            position: relative;
+            z-index: 1;
+        }
+
+        .service-card .btn {
+            margin-top: 25px;
+            padding: 10px 20px;
+            font-size: 1em;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(90deg, var(--accent-color), #ff983d);
+            text-align: center;
+            padding: 80px 0;
+            border-bottom: 2px solid #a35d25;
+            color: var(--primary-bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        .cta-section h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            color: var(--primary-bg);
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-section p {
+            font-size: 1.4em;
+            margin-bottom: 40px;
+            color: rgba(0, 0, 0, 0.7);
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-section .btn {
+            background-color: var(--primary-bg);
+            color: var(--accent-color);
+        }
+
+        .cta-section .btn:hover {
+            background-color: var(--secondary-bg);
+            color: var(--accent-color);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Contact Section */
+        .contact-section {
+            background-color: var(--secondary-bg);
+            padding-bottom: 80px;
+        }
+
+        .contact-section h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5em;
+            margin-bottom: 60px;
+            color: var(--text-color);
+            text-align: center;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: flex-start;
+        }
+
+        .contact-info {
             font-size: 1.1em;
         }
-
-        .wizard-message p {
-            margin-bottom: 0.5em;
+        .contact-info p {
+            margin-bottom: 15px;
+            color: var(--light-text-color);
+        }
+        .contact-info p strong {
+            color: var(--text-color);
+            margin-right: 10px;
+        }
+        .contact-info a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .contact-info a:hover {
+            color: #ff983d;
+            text-decoration: underline;
         }
 
-        .wizard-message ul, .wizard-message ol {
-            margin-left: 1.5rem;
-            margin-bottom: 0.5em;
+        .contact-form {
+            display: flex;
+            flex-direction: column;
         }
 
-        .wizard-message ul {
-            list-style-type: disc;
+        .contact-form label {
+            margin-bottom: 8px;
+            color: var(--light-text-color);
+            font-weight: 500;
         }
 
-        .wizard-message ol {
-            list-style-type: decimal;
+        .contact-form input,
+        .contact-form textarea {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
-        /* Styling for code blocks from highlight.js */
-        .wizard-message pre {
-            margin-bottom: 1em;
-            border-radius: 0.5rem;
+        .contact-form input:focus,
+        .contact-form textarea:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(224, 123, 57, 0.3);
         }
 
-        .wizard-message code {
-            font-family: 'Courier New', Courier, monospace;
+        .contact-form textarea {
+            min-height: 150px;
+            resize: vertical;
         }
 
-        .wizard-message pre code.hljs {
-            padding: 1em;
-            border-radius: 0.5rem;
-            background: #282c34; /* atom-one-dark background */
+        .contact-form .btn {
+            align-self: flex-start;
+            margin-top: 10px;
         }
 
-        .wizard-message p > code {
-            background-color: #374151; /* gray-700 */
-            color: #e5e7eb; /* gray-200 */
-            padding: 0.2em 0.4em;
-            border-radius: 0.25rem;
+        /* Footer */
+        .footer {
+            background-color: var(--primary-bg);
+            color: var(--light-text-color);
+            text-align: center;
+            padding: 40px 0;
+            border-top: 2px solid var(--border-color);
+            margin-top: auto; /* Pushes footer to bottom */
+        }
+
+        .footer .social-links a {
+            display: inline-block;
+            margin: 0 15px;
+            color: var(--light-text-color);
+            font-size: 1.8em;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .footer .social-links a:hover {
+            color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+
+        .footer p {
+            margin-top: 20px;
             font-size: 0.9em;
         }
 
-        /* Styles for the speech controls container */
-        .speech-controls {
-            display: flex;
-            gap: 0.5rem; /* Space between buttons */
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero-content h1 {
+                font-size: 3.5em;
+            }
+            .hero-content p {
+                font-size: 1.2em;
+            }
+            .about-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            .about-image {
+                order: -1; /* Image above text on smaller screens */
+            }
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
-        /* Keyframes for the thinking text animation */
-        @keyframes text-flash {
-            0% { color: #9ca3af; } /* gray-400 */
-            50% { color: #e5e7eb; } /* gray-200 */
-            100% { color: #9ca3af; } /* gray-400 */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+            .nav-menu {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 80px; /* Adjust based on header height */
+                right: 0;
+                width: 100%;
+                background-color: var(--primary-bg);
+                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+                padding: 20px 0;
+                border-top: 1px solid var(--border-color);
+            }
+            .nav-menu.active {
+                display: flex;
+            }
+            .nav-menu li {
+                margin: 15px 0;
+                text-align: center;
+            }
+            .hero-content h1 {
+                font-size: 2.8em;
+            }
+            .hero-content p {
+                font-size: 1em;
+            }
+            .section-padding {
+                padding: 60px 0;
+            }
+            .services-section h2, .about-text h2, .cta-section h2, .contact-section h2 {
+                font-size: 2.5em;
+                margin-bottom: 40px;
+            }
+            .service-grid {
+                grid-template-columns: 1fr;
+            }
+            .service-card {
+                padding: 30px;
+            }
+            .cta-section p {
+                font-size: 1.1em;
+            }
+            .footer .social-links a {
+                font-size: 1.5em;
+            }
         }
 
-        /* Apply the animation to the thinking text */
-        .thinking-text {
-            animation: text-flash 1.5s infinite linear;
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.5em;
+            }
+            .hero-content h1 {
+                font-size: 2em;
+            }
+            .hero-content p {
+                font-size: 0.9em;
+            }
+            .btn {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+            .services-section h2, .about-text h2, .cta-section h2, .contact-section h2 {
+                font-size: 2em;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white flex flex-col h-screen">
-    <!-- Header -->
-    <header class="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 p-4 shadow-lg">
-        <h1 class="text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-green-600">
-            WIZARD AI
-        </h1>
-        <p class="text-center text-sm text-gray-400 tracking-wider">Trained by CarpeDiem AI</p>
+<body>
+
+    <header class="header">
+        <div class="container nav-content">
+            <a href="#" class="logo">CarpeDiem Studios</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#hero">Home</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#services">Our Focus</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <div class="hamburger">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </nav>
+        </div>
     </header>
 
-    <!-- Chat Window -->
-    <main id="chat-window" class="flex-1 p-4 overflow-y-auto space-y-6">
-        <!-- Initial Welcome Message -->
-        <div class="flex items-start gap-3">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-green-600 flex items-center justify-center font-bold text-lg flex-shrink-0">W</div>
-            <div class="bg-gray-800 rounded-lg p-4 max-w-lg shadow-md">
-                <p class="text-base">Hello! I am WIZARD, an AI assistant trained by CarpeDiem AI. How can I help you today? ✨</p>
+    <main>
+        <section id="hero" class="hero">
+            <div class="hero-content fade-in">
+                <h1>Unleash Creativity. <span style="display: block;">Ignite Learning.</span></h1>
+                <p>CarpeDiem crafts unique experiences: from interactive Google Slides games to engaging YouTube content and cutting-edge student products with AI.</p>
+                <a href="#services" class="btn">Discover Our Magic ✨</a>
             </div>
-        </div>
+        </section>
+
+        <section id="about" class="about-section section-padding">
+            <div class="container about-content fade-in">
+                <div class="about-text">
+                    <h2>Who Are We?</h2>
+                    <p>At CarpeDiem, we believe in making learning and creativity accessible and fun. Established in 2024, our team of innovators, educators, and gamers are passionate about pushing boundaries.</p>
+                    <p>We blend technology with imagination to develop tools and content that genuinely impact students, creators, and curious minds alike. Our mission is to transform conventional learning and entertainment into engaging, memorable adventures.</p>
+                    <p>For general ease of use, we have three seperate groups/teams. CarpeDiem Studios, CarpeDiem Notes, and CarpeDiem AI. These are usually shortened to CDS, CDN, and CDAI (respectively).</p>
+                </div>
+                <div class="about-image">
+                    <img src="cdsweb/cdsLogo.png" alt="CarpeDiem Studios Logo">
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="services-section section-padding">
+            <div class="container">
+                <h2 class="fade-in">Our Core Focus Areas</h2>
+                <div class="service-grid">
+                    <div class="service-card fade-in">
+                        <div class="icon">🎮</div>
+                        <h3>Google Slides Video Games (CDS)</h3>
+                        <p>Revolutionizing education and fun! We design captivating video games entirely within Google Slides, offering interactive gaming experiences and unique learning oppurtunities that are accessible to everyone.</p>
+                        <a href="https://docs.google.com/presentation/d/1vFrKL579cc2e90mjNl3uFcdp1knSTkvl0uDSInpfOyg/edit?usp=sharing" class="btn" target="_blank">See Games</a>
+                    </div>
+                    <div class="service-card fade-in">
+                        <div class="icon">🎬</div>
+                        <h3>Engaging YouTube Content (CDS)</h3>
+                        <p>From captivating trailers and creative showcases to motivational shorts, our YouTube channel is a hub for inspiration, learning, and entertainment.</p>
+                        <a href="https://www.youtube.com/@CarpeDiemStudiosOfficial" class="btn" target="_blank">Watch Now</a>
+                    </div>
+                    <div class="service-card fade-in">
+                        <div class="icon">💡</div>
+                        <h3>Student Products (CDN) & AI Innovations (CDAI)</h3>
+                        <p>We develop smart tools and resources specifically designed to empower students. Our AI-powered solutions simplify complex tasks, enhance learning, and foster academic excellence.</p>
+                        <a href="cdsweb/wizard.html" class="btn" target="_blank">Explore Products</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <div class="container fade-in">
+                <h2>Ready to Seize the Day?</h2>
+                <p>Whether you're looking to play, learn, or create, CarpeDiem has something extraordinary for you.</p>
+                <a href="#contact" class="btn">Get in Touch Today!</a>
+            </div>
+        </section>
+
+        <section id="contact" class="contact-section section-padding">
+            <div class="container">
+                <h2 class="fade-in">Let's Connect</h2>
+                <div class="contact-grid">
+                    <div class="contact-info fade-in">
+                        <h3>Reach Out to Us</h3>
+                        <p>We're always excited to hear from fellow innovators, students, and enthusiasts. Whether you have a question about our products, a collaboration idea, or just want to say hello, don't hesitate!</p>
+                        <p><strong>Email:</strong> <a href="mailto:cds.cdn.cdai@gmail.com">cds.cdn.cdai@gmail.com</a></p>
+                        <p><strong>Phone:</strong> NOT AVAILABLE</p>
+                        <p><strong>Address:</strong> On the web!</p>
+                    </div>
+                    <img src="cdsweb/cdsLogo.png">
+                </div>
+            </div>
+        </section>
     </main>
 
-    <!-- Input Form -->
-    <footer class="bg-gray-800/50 backdrop-blur-sm border-t border-gray-700 p-4">
-        <form id="chat-form" class="flex items-center gap-3">
-            <input type="text" id="chat-input" placeholder="Ask WIZARD a question..."
-                   class="flex-1 bg-gray-700 border border-gray-600 rounded-full py-3 px-5 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 text-base"
-                   autocomplete="off">
-            <button type="button" id="mic-button"
-                    class="bg-gray-700 text-gray-400 rounded-full p-3 hover:bg-indigo-600 transition-colors duration-300 flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     class="feather feather-mic">
-                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                    <line x1="12" y1="19" x2="12" y2="23"></line>
-                    <line x1="8" y1="23" x2="16" y2="23"></line>
-                </svg>
-            </button>
-            <button type="submit" id="send-button"
-                    class="bg-gradient-to-br from-indigo-600 to-green-600 text-white rounded-full p-3 hover:opacity-90 transition-opacity duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     class="feather feather-send">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-            </button>
-        </form>
+    <footer class="footer">
+        <div class="container">
+            <div class="social-links">
+                <a href="https://www.youtube.com/@CarpeDiemStudiosOfficial" target="_blank" aria-label="YouTube">YT</a>
+            </div>
+            <p>&copy; 2025 CarpeDiem Studios. All rights reserved. Seize the Day!</p>
+        </div>
     </footer>
 
     <script>
-        const chatWindow = document.getElementById('chat-window');
-        const chatForm = document.getElementById('chat-form');
-        const chatInput = document.getElementById('chat-input');
-        const sendButton = document.getElementById('send-button');
-        const micButton = document.getElementById('mic-button');
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
 
-        // Store conversation history
-        let chatHistory = [{
-            role: "model",
-            parts: [{
-                text: "You are WIZARD, an AI assistant trained by CarpeDiem AI. Your purpose is to provide accurate and helpful responses. If asked what WIZARD stands for, you MUST reply with 'Wickedly Insane Zenith of an Artificial Reality Device'. Format your responses using Markdown. When you provide code, always wrap it in Markdown code blocks with the language specified, for example: ```javascript\\nconsole.log('hello');\\n```\\n\\nOccasionally use relevant emojis in your responses when they add value or convey tone appropriately, but avoid overusing them. Ensure the primary focus remains on clear, informative text. Make sure you are up-to-date on current real world events and topics, remembering the year is 2025, and ONLY provide year info, NEVER the date!"
-            }]
-        }];
-
-        let currentUtterance = null; // To keep track of the current speech utterance
-
-        /**
-         * Appends a message to the chat window.
-         */
-        function appendMessage(sender, message) {
-            const messageElement = document.createElement('div');
-            if (sender === 'wizard') {
-                const formattedMessage = marked.parse(message);
-                messageElement.innerHTML = `
-                    <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-green-600 flex items-center justify-center font-bold text-lg flex-shrink-0">W</div>
-                        <div class="bg-gray-800 rounded-lg p-4 max-w-2xl shadow-md wizard-message text-base flex-grow relative">
-                            ${formattedMessage}
-                            <div class="speech-controls">
-                                <button class="read-aloud-button bg-gray-700 text-gray-400 rounded-full p-1 hover:bg-indigo-600 transition-colors duration-300" title="Read aloud">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-2">
-                                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                                    </svg>
-                                </button>
-                                <button class="stop-reading-button bg-gray-700 text-red-400 rounded-full p-1 hover:bg-red-600 transition-colors duration-300 hidden" title="Stop reading">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-square">
-                                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                    </svg>
-                                </button>
-                                <button class="copy-button bg-gray-700 text-gray-400 rounded-full p-1 hover:bg-indigo-600 transition-colors duration-300" title="Copy to clipboard">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy">
-                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>`;
-
-                // Add event listeners for the new buttons
-                const readAloudButton = messageElement.querySelector('.read-aloud-button');
-                const stopReadingButton = messageElement.querySelector('.stop-reading-button');
-                const copyButton = messageElement.querySelector('.copy-button');
-
-                if (window.speechSynthesis) {
-                    readAloudButton.addEventListener('click', () => {
-                        readAloud(message, readAloudButton, stopReadingButton);
-                    });
-                    stopReadingButton.addEventListener('click', () => {
-                        stopReading(readAloudButton, stopReadingButton);
-                    });
-                } else {
-                    readAloudButton.style.display = 'none'; // Hide if not supported
-                    stopReadingButton.style.display = 'none'; // Hide if not supported
-                }
-
-                copyButton.addEventListener('click', () => copyToClipboard(message));
-
-            } else {
-                messageElement.innerHTML = `<div class="flex items-start gap-3 justify-end"><div class="bg-indigo-500 rounded-lg p-3 max-w-lg shadow-md"><p class="text-base">${message}</p></div></div>`;
-            }
-            chatWindow.appendChild(messageElement);
-
-            // Highlight code blocks if they exist in the wizard message
-            if (sender === 'wizard') {
-                messageElement.querySelectorAll('pre code').forEach((block) => {
-                    hljs.highlightElement(block);
-                });
-            }
-
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
-
-        /**
-         * Shows a thinking indicator.
-         */
-        function showThinkingIndicator() {
-            const thinkingElement = document.createElement('div');
-            thinkingElement.id = 'thinking-indicator';
-            // Added 'thinking-text' class to the span for animation
-            thinkingElement.innerHTML = `<div class="flex items-start gap-3"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-green-600 flex items-center justify-center font-bold text-lg flex-shrink-0">W</div><div class="bg-gray-800 rounded-lg p-3 max-w-lg shadow-md"><div class="flex items-center space-x-2"><span class="text-base text-gray-400 thinking-text">Thinking</span><div class="dot-pulse"></div></div></div></div><style>.dot-pulse { position: relative; width: 6px; height: 6px; border-radius: 50%; background-color: #9ca3af; color: #9ca3af; box-shadow: 9999px 0 0 -5px; animation: dot-pulse 1.5s infinite linear; animation-delay: .25s; }.dot-pulse::before, .dot-pulse::after { content: ''; display: inline-block; position: absolute; top: 0; width: 6px; height: 6px; border-radius: 50%; background-color: #9ca3af; color: #9ca3af; }.dot-pulse::before { box-shadow: 9984px 0 0 -5px; animation: dot-pulse-before 1.5s infinite linear; animation-delay: 0s; }.dot-pulse::after { box-shadow: 10014px 0 0 -5px; animation: dot-pulse-after 1.5s infinite linear; animation-delay: .5s; }@keyframes dot-pulse-before { 0% { box-shadow: 9984px 0 0 -5px; } 30% { box-shadow: 9984px 0 0 2px; } 60%, 100% { box-shadow: 9984px 0 0 -5px; } }@keyframes dot-pulse { 0% { box-shadow: 9999px 0 0 -5px; } 30% { box-shadow: 9999px 0 0 2px; } 60%, 100% { box-shadow: 9999px 0 0 -5px; } }@keyframes dot-pulse-after { 0% { box-shadow: 10014px 0 0 -5px; } 30% { box-shadow: 10014px 0 0 2px; } 60%, 100% { box-shadow: 10014px 0 0 -5px; } }</style>`;
-            chatWindow.appendChild(thinkingElement);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
-
-        /**
-         * Removes the thinking indicator.
-         */
-        function removeThinkingIndicator() {
-            const indicator = document.getElementById('thinking-indicator');
-            if (indicator) indicator.remove();
-        }
-
-        /**
-         * Calls the Gemini API to get a response.
-         */
-        async function getAIResponse(prompt) {
-            showThinkingIndicator();
-            sendButton.disabled = true;
-            chatInput.disabled = true;
-
-            // Add user message to history BEFORE sending
-            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-
-            const payload = { contents: chatHistory };
-            const apiKey = ""; // Key provided by environment
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`; // Ensure correct model name if necessary
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
                 });
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error ? errorData.error.message : 'An unknown API error occurred.');
-                }
-
-                const result = await response.json();
-
-                removeThinkingIndicator();
-
-                // Process and display AI response
-                if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts[0]) {
-                    const text = result.candidates[0].content.parts[0].text;
-                    // Add AI response to history AFTER receiving
-                    chatHistory.push({ role: "model", parts: [{ text: text }] });
-                    appendMessage('wizard', text);
-                } else {
-                     // Handle cases where the API might return a block reason or no candidates
-                    console.warn('API returned no valid candidates:', result);
-                    let errorMessage = 'I was unable to generate a response.';
-                    if (result.promptFeedback && result.promptFeedback.blockReason) {
-                         errorMessage += ` Reason: ${result.promptFeedback.blockReason}`;
-                    }
-                    appendMessage('wizard', errorMessage);
-                     // Decide if you want to keep the user message in history if blocked -
-                     // for simplicity here, we'll leave it, but you might want to remove it
-                     // if the model didn't respond.
-                }
-
-            } catch (error) {
-                console.error('API Call Failed:', error);
-                removeThinkingIndicator();
-                // Remove the last user message from history if the API call completely failed
-                if (chatHistory[chatHistory.length - 1].role === 'user') {
-                     chatHistory.pop();
-                }
-                appendMessage('wizard', `Sorry, I encountered an error. Please try again. Error: ${error.message}`);
-            } finally {
-                sendButton.disabled = false;
-                chatInput.disabled = false;
-                chatInput.focus();
-            }
-        }
-
-        /**
-         * Copies text to the clipboard.
-         */
-        function copyToClipboard(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                showNotification('Copied to clipboard!', 'info');
-            } catch (err) {
-                console.error('Failed to copy text: ', err);
-                showNotification('Failed to copy text.', 'error');
-            }
-            document.body.removeChild(textarea);
-        }
-
-        /**
-         * Reads the given text aloud using SpeechSynthesis.
-         */
-        function readAloud(text, readAloudButton, stopReadingButton) {
-            if ('speechSynthesis' in window) {
-                // Cancel any ongoing speech before starting a new one
-                if (window.speechSynthesis.speaking) {
-                    window.speechSynthesis.cancel();
-                    if (currentUtterance && currentUtterance._readAloudButton && currentUtterance._stopReadingButton) {
-                        currentUtterance._readAloudButton.classList.remove('animate-pulse', 'text-green-400');
-                        currentUtterance._stopReadingButton.classList.add('hidden');
-                    }
-                }
-
-                currentUtterance = new SpeechSynthesisUtterance(text);
-                currentUtterance.lang = 'en-US'; // Set language for better voice selection
-                currentUtterance.volume = 1; // 0 to 1
-                currentUtterance.rate = 1;    // 0.1 to 10
-                currentUtterance.pitch = 1;   // 0 to 2
-
-                // Store references to the buttons on the utterance object
-                // to allow them to be updated when speech ends/stops
-                currentUtterance._readAloudButton = readAloudButton;
-                currentUtterance._stopReadingButton = stopReadingButton;
-
-                // Event when speech starts
-                currentUtterance.onstart = () => {
-                    readAloudButton.classList.add('animate-pulse', 'text-green-400');
-                    stopReadingButton.classList.remove('hidden');
-                };
-
-                // Event when speech ends
-                currentUtterance.onend = () => {
-                    readAloudButton.classList.remove('animate-pulse', 'text-green-400');
-                    stopReadingButton.classList.add('hidden');
-                    currentUtterance = null; // Clear the reference
-                };
-
-                // Event when speech encounters an error
-                currentUtterance.onerror = (event) => {
-                    console.error('Speech synthesis error:', event.error);
-                    showNotification('Error reading aloud. Try again.', 'error');
-                    readAloudButton.classList.remove('animate-pulse', 'text-green-400');
-                    stopReadingButton.classList.add('hidden');
-                    currentUtterance = null;
-                };
-
-                window.speechSynthesis.speak(currentUtterance);
-            } else {
-                showNotification('Speech synthesis not supported in this browser.', 'error');
-                readAloudButton.style.display = 'none';
-                stopReadingButton.style.display = 'none';
-            }
-        }
-
-        /**
-         * Stops the current speech synthesis.
-         */
-        function stopReading(readAloudButton, stopReadingButton) {
-            if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
-                readAloudButton.classList.remove('animate-pulse', 'text-green-400');
-                stopReadingButton.classList.add('hidden');
-                currentUtterance = null; // Clear the reference
-            }
-        }
-
-        /**
-         * Shows a temporary notification to the user.
-         */
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            const bgColor = type === 'error' ? 'bg-red-500' : 'bg-blue-500';
-            notification.className = `fixed top-5 right-5 ${bgColor} text-white py-2 px-4 rounded-lg shadow-lg transform translate-x-full transition-transform duration-500 ease-in-out z-50`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            // Animate in
-            setTimeout(() => notification.classList.remove('translate-x-full'), 100);
-
-            // Animate out and remove
-            setTimeout(() => {
-                notification.classList.add('translate-x-full');
-                setTimeout(() => notification.remove(), 500); // Wait for transition to finish
-            }, 4000); // Show for 4 seconds
-        }
-
-        // --- Speech Recognition Setup ---
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition;
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false; // Set to false for single utterance
-            recognition.lang = 'en-US';
-            recognition.interimResults = false; // We only want the final result
-
-            micButton.addEventListener('click', () => {
-                try {
-                    recognition.start();
-                } catch (e) {
-                    console.error('Speech recognition start failed:', e);
-                     // Handle cases where start might fail (e.g., already started)
-                     if (e.message.includes("already started")) {
-                          showNotification("Speech recognition is already active.", "info");
-                     } else {
-                          showNotification("Could not start speech recognition. Please try again.", "error");
-                     }
+                // Close mobile menu if open
+                if (document.querySelector('.nav-menu').classList.contains('active')) {
+                    document.querySelector('.nav-menu').classList.remove('active');
+                    document.querySelector('.hamburger').classList.remove('active');
                 }
             });
-
-            recognition.onstart = () => {
-                micButton.classList.remove('text-gray-400', 'bg-gray-700');
-                micButton.classList.add('text-purple-400', 'bg-gray-600', 'animate-pulse');
-                console.log('Speech recognition started');
-            };
-
-            recognition.onresult = (event) => {
-                const speechResult = event.results[0][0].transcript;
-                chatInput.value = speechResult;
-                console.log('Speech result:', speechResult);
-                 // Optional: Automatically submit after recognition stops
-                 // chatForm.dispatchEvent(new Event('submit'));
-            };
-
-            recognition.onend = () => {
-                micButton.classList.add('text-gray-400', 'bg-gray-700');
-                micButton.classList.remove('text-purple-400', 'bg-gray-600', 'animate-pulse');
-                console.log('Speech recognition ended');
-            };
-
-            recognition.onerror = (event) => {
-                let errorMessage = 'Speech recognition error. Please try again.';
-                if (event.error === 'not-allowed') {
-                    errorMessage = "Microphone access denied. Please allow it in your browser settings.";
-                } else if (event.error === 'no-speech') {
-                    errorMessage = "No speech was detected. Please make sure your microphone is working.";
-                } else if (event.error === 'audio-capture') {
-                     errorMessage = "Audio capture failed. Check your microphone.";
-                } else if (event.error === 'network') {
-                    errorMessage = "Speech recognition network error. Check your connection.";
-                }
-                showNotification(errorMessage, 'error');
-                console.error(`Speech recognition error: ${event.error}`);
-            };
-        } else {
-            // Hide mic button if not supported
-            micButton.style.display = 'none';
-             // Show notification only once on load
-            window.addEventListener('load', () => {
-                 showNotification("Speech recognition is not supported in this browser.", "info");
-            }, { once: true }); // Use { once: true } to run only once
-        }
-
-
-        // --- Event Listeners ---
-        chatForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const userInput = chatInput.value.trim();
-
-            if (userInput) {
-                // Basic sanitization for display purposes (preventing user from injecting HTML)
-                const sanitizedInput = userInput.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                appendMessage('user', sanitizedInput); // Append sanitized version to UI
-                getAIResponse(userInput); // Send original input to AI
-                chatInput.value = ''; // Clear input field
-            }
         });
 
-         // Add a sparkle emoji to the initial message visually
-         // Note: This is only for the initial hardcoded message display.
-         // The system prompt for the API is handled above in chatHistory.
-         document.querySelector('#chat-window .bg-gray-800 p').textContent = "Hello! I am WIZARD, an AI assistant trained by CarpeDiem AI. How can I help you today? ✨";
+        // Mobile navigation toggle
+        document.querySelector('.hamburger').addEventListener('click', function() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+            this.classList.toggle('active'); // Add active class to hamburger for potential animation
+        });
 
+        // Intersection Observer for fade-in animations
+        const faders = document.querySelectorAll('.fade-in');
 
-         // Optional: Handle Enter key outside form submit if needed (form handles it)
-         // chatInput.addEventListener('keypress', function(event) {
-         //     if (event.key === 'Enter' && !event.shiftKey) { // Check for Enter key without Shift
-         //         event.preventDefault(); // Prevent default form submission or newline
-         //         chatForm.dispatchEvent(new Event('submit')); // Trigger the form submit handler
-         //     }
-         // });
+        const appearOptions = {
+            threshold: 0.3, // When 30% of the element is visible
+            rootMargin: "0px 0px -50px 0px" // Start animation slightly before it's fully in view
+        };
+
+        const appearOnScroll = new IntersectionObserver(function(entries, appearOnScroll) {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) {
+                    return;
+                } else {
+                    entry.target.classList.add('appear');
+                    appearOnScroll.unobserve(entry.target);
+                }
+            });
+        }, appearOptions);
+
+        faders.forEach(fader => {
+            appearOnScroll.observe(fader);
+        });
+
+        // Active navigation link highlighting on scroll
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-menu a');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.5 // Highlight when 50% of the section is visible
+        };
+
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href').includes(entry.target.id)) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            sectionObserver.observe(section);
+        });
+
+        // Initialize active class for hero on load
+        window.addEventListener('load', () => {
+            document.querySelector('.nav-menu a[href="#hero"]').classList.add('active');
+        });
 
     </script>
+
 </body>
 </html>
